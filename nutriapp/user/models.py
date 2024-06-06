@@ -13,17 +13,22 @@ class User(AbstractUser):
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='patient',null=True,blank=True)
+    name = models.CharField(max_length=20,null=True,blank=True)
+    lastname = models.CharField(max_length=20,null=True,blank=True)
     peso = models.IntegerField(null=True,blank=True)
     altura = models.IntegerField(null=True,blank=True)
     fecha_nacimiento = models.DateField(null=True,blank=True)
 
     def __str__(self):
         return self.user.username
+    
 @receiver(post_save,sender=User)
 def create_patient(sender, instance, created, **kwargs):
     if created and instance.is_patient ==True:
-        Patient.objects.create(user=instance)
-        instance.patient.save()
+        patient = Patient.objects.create(user=instance)
+        patient.name = instance.first_name
+        patient.lastname = instance.last_name
+        patient.save()
     else:
         return
 #@receiver(post_save,sender=User)
